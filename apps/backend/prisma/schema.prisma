@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  files    File[]
+  messages Message[]
+  surveys  Survey[]
+
+  @@map("users")
+}
+
+model File {
+  id        String     @id @default(cuid())
+  name      String
+  type      String
+  size      Int
+  url       String
+  s3Key     String     @unique
+  status    String     @default("UPLOADING")
+  userId    String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@map("files")
+}
+
+model Message {
+  id        String      @id @default(cuid())
+  content   String
+  role      String
+  userId    String
+  fileId    String?
+  createdAt DateTime    @default(now())
+
+  // Relations
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  file File? @relation(fields: [fileId], references: [id], onDelete: SetNull)
+
+  @@map("messages")
+}
+
+model Survey {
+  id        String   @id @default(cuid())
+  userId    String
+  rating    Int
+  feedback  String
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("surveys")
+}
+
+// Enums converted to strings for SQLite compatibility
+// Role: "USER" | "ADMIN"
+// FileStatus: "UPLOADING" | "PROCESSING" | "COMPLETED" | "ERROR"  
+// MessageRole: "USER" | "ASSISTANT"

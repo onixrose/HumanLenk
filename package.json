@@ -1,0 +1,43 @@
+{
+  "name": "humanlenk",
+  "version": "1.0.0",
+  "description": "HumanLenk MVP - Premium PWA with GPT-powered chat and file uploads",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "clean": "turbo run clean",
+    "test": "turbo run test",
+    "audit": "yarn audit --level moderate",
+    "analyze": "cd apps/frontend && yarn build && yarn analyze",
+    "db:generate": "cd apps/backend && yarn db:generate",
+    "db:migrate": "cd apps/backend && yarn db:migrate",
+    "db:push": "cd apps/backend && yarn db:push",
+    "db:studio": "cd apps/backend && yarn db:studio",
+    "start:frontend": "cd apps/frontend && yarn start",
+    "start:backend": "cd apps/backend && yarn start",
+    "dev-script": "./scripts/dev.sh"
+  },
+  "devDependencies": {
+    "@turbo/gen": "^1.10.12",
+    "@typescript-eslint/eslint-plugin": "^8.44.0",
+    "@typescript-eslint/parser": "^8.44.0",
+    "eslint": "^8.48.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.0.3",
+    "tailwindcss-animate": "^1.0.7",
+    "turbo": "^1.10.12",
+    "typescript": "^5.2.2"
+  },
+  "packageManager": "yarn@1.22.19",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

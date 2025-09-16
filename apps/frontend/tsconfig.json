@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@humanlenk/types": ["../../packages/types/src"],
+      "@humanlenk/api-client": ["../../packages/api-client/src"],
+      "@humanlenk/utils": ["../../packages/utils/src"],
+      "@humanlenk/ui": ["../../packages/ui/src"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}
