@@ -213,11 +213,11 @@ services:
       dockerfile: apps/frontend/Dockerfile
     environment:
       NODE_ENV: production
-      NEXT_PUBLIC_API_URL: http://backend:3001
+      NEXT_PUBLIC_API_URL: http://backend:5000
     depends_on:
       - backend
     ports:
-      - "3000:3000"
+      - "4000:4000"
 
 volumes:
   postgres_data:

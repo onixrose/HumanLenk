@@ -127,7 +127,7 @@ AWS_SECRET_ACCESS_KEY="your-aws-secret-key"
 OPENAI_API_KEY="your-openai-api-key"
 
 # Server Configuration
-PORT=3001
+PORT=5000
 NODE_ENV="development"
 LOG_LEVEL="info"
 ```
