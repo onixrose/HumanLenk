@@ -21,8 +21,8 @@
     "db:migrate": "cd apps/backend && yarn db:migrate",
     "db:push": "cd apps/backend && yarn db:push",
     "db:studio": "cd apps/backend && yarn db:studio",
-    "start:frontend": "cd apps/frontend && yarn start",
-    "start:backend": "cd apps/backend && yarn start",
+    "start:frontend": "cd apps/frontend && PORT=4000 yarn start",
+    "start:backend": "cd apps/backend && PORT=5000 yarn start",
     "dev-script": "./scripts/dev.sh"
   },
   "devDependencies": {

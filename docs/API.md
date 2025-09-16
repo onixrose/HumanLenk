@@ -482,7 +482,7 @@ The API is designed to work seamlessly with Progressive Web Apps:
 ### Test Environment
 Use the test environment for development and testing:
 ```
-Base URL: http://localhost:3001/api
+Base URL: http://localhost:5000/api
 ```
 
 ### Test Data

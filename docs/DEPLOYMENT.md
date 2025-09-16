@@ -73,7 +73,7 @@ AWS_SECRET_ACCESS_KEY="your-production-secret-key"
 OPENAI_API_KEY="your-openai-api-key"
 
 # Server Configuration
-PORT=3001
+PORT=5000
 NODE_ENV="production"
 LOG_LEVEL="warn"
 
@@ -205,7 +205,7 @@ services:
     depends_on:
       - postgres
     ports:
-      - "3001:3001"
+      - "5000:5000"
 
   frontend:
     build:

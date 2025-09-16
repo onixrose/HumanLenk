@@ -208,15 +208,15 @@ health_check() {
     log_info "Checking application health..."
     
     # Check if frontend is running
-    if curl -s http://localhost:3000 > /dev/null; then
-        log_success "Frontend is running on http://localhost:3000"
+    if curl -s http://localhost:4000 > /dev/null; then
+        log_success "Frontend is running on http://localhost:4000"
     else
         log_error "Frontend is not running"
     fi
     
     # Check if backend is running
-    if curl -s http://localhost:3001/health > /dev/null; then
-        log_success "Backend is running on http://localhost:3001"
+    if curl -s http://localhost:5000/health > /dev/null; then
+        log_success "Backend is running on http://localhost:5000"
     else
         log_error "Backend is not running"
     fi

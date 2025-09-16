@@ -102,8 +102,8 @@ humanlenk/
    yarn dev
    
    # Or start individually
-   yarn start:frontend  # http://localhost:3000
-   yarn start:backend   # http://localhost:3001
+   yarn start:frontend  # http://localhost:4000
+   yarn start:backend   # http://localhost:5000
    ```
 
 ### Environment Variables
@@ -134,7 +134,7 @@ LOG_LEVEL="info"
 
 #### Frontend (.env.local)
 ```env
-NEXT_PUBLIC_API_URL="http://localhost:3001"
+NEXT_PUBLIC_API_URL="http://localhost:5000"
 ```
 
 ## 📱 Usage
