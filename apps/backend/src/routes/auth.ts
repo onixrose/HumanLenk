@@ -115,7 +115,7 @@ router.post("/login", asyncHandler(async (req, res) => {
     ip: req.ip,
   });
 
-  const { password: _, ...userWithoutPassword } = user;
+  const { password: _password, ...userWithoutPassword } = user;
 
   res.json({
     success: true,

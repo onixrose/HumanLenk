@@ -6,9 +6,9 @@ import { AuthModal } from "@/components/auth/auth-modal";
 import { FileUploadSection } from "@/components/files/file-upload-section";
 import { Header } from "@/components/layout/header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@humanlenk/api-client";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+// import { useAuth } from "@humanlenk/api-client";
+// import { useRouter } from "next/navigation";
+// import { useEffect } from "react";
 
 export default function HomePage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

@@ -8,7 +8,7 @@ import { DashboardOverview } from "@/components/admin/dashboard-overview";
 import { UsersTable } from "@/components/admin/users-table";
 import { FilesTable } from "@/components/admin/files-table";
 import { SurveysTable } from "@/components/admin/surveys-table";
-import { Card } from "@/components/ui/card";
+// import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function AdminDashboard() {

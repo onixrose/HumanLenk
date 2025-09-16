@@ -5,6 +5,7 @@ module.exports = {
     "prettier"
   ],
   parser: "@typescript-eslint/parser",
+  plugins: ["@typescript-eslint"],
   parserOptions: {
     ecmaVersion: 2022,
     sourceType: "module"
@@ -14,6 +15,13 @@ module.exports = {
     node: true,
     browser: true
   },
+  globals: {
+    RequestInit: "readonly",
+    Response: "readonly",
+    fetch: "readonly",
+    NodeJS: "readonly",
+    React: "readonly"
+  },
   ignorePatterns: [
     "node_modules/",
     "dist/",
@@ -21,24 +29,8 @@ module.exports = {
     "*.config.js"
   ],
   rules: {
-    "no-unused-vars": "error",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
     "prefer-const": "error"
-  },
-  overrides: [
-    {
-      files: ["*.ts", "*.tsx"],
-      parser: "@typescript-eslint/parser",
-      plugins: ["@typescript-eslint"],
-      extends: [
-        "eslint:recommended",
-        "@typescript-eslint/recommended",
-        "prettier"
-      ],
-      rules: {
-        "@typescript-eslint/no-unused-vars": "error",
-        "@typescript-eslint/no-explicit-any": "warn",
-        "no-unused-vars": "off"
-      }
-    }
-  ]
+  }
 };

@@ -11,7 +11,7 @@ import {
   Filter, 
   MoreHorizontal, 
   Download,
-  Trash2,
+  // Trash2,
   FileText,
   FileImage,
   FileIcon,

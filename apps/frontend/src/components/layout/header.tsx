@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge";
 import { LogOut, User, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 
