@@ -45,7 +45,7 @@ export function SurveysTable() {
     );
   }
 
-  const filteredSurveys = surveys?.surveys?.filter((survey: any) => {
+  const filteredSurveys = (surveys as any)?.surveys?.filter((survey: any) => {
     const matchesSearch = survey.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          survey.feedback.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRating = ratingFilter === "all" || survey.rating.toString() === ratingFilter;
@@ -82,7 +82,7 @@ export function SurveysTable() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>
-            Surveys & Feedback ({surveys?.pagination?.total || 0})
+            Surveys & Feedback ({(surveys as any)?.pagination?.total || 0})
           </CardTitle>
           <div className="flex items-center space-x-2">
             <div className="relative">
@@ -102,14 +102,14 @@ export function SurveysTable() {
         </div>
         
         {/* Average Rating */}
-        {surveys?.averageRating && (
+        {(surveys as any)?.averageRating && (
           <div className="flex items-center space-x-4 pt-4 border-t">
             <div className="flex items-center space-x-2">
               <span className="text-sm font-medium">Average Rating:</span>
               <div className="flex items-center space-x-1">
-                {renderStars(Math.round(surveys.averageRating))}
-                <span className={`text-lg font-bold ${getRatingColor(Math.round(surveys.averageRating))}`}>
-                  {surveys.averageRating.toFixed(1)}
+                {renderStars(Math.round((surveys as any).averageRating))}
+                <span className={`text-lg font-bold ${getRatingColor(Math.round((surveys as any).averageRating))}`}>
+                  {(surveys as any).averageRating.toFixed(1)}
                 </span>
               </div>
             </div>
@@ -184,18 +184,18 @@ export function SurveysTable() {
           </div>
 
           {/* Pagination */}
-          {surveys?.pagination && (
+          {(surveys as any)?.pagination && (
             <div className="flex items-center justify-between pt-4">
               <div className="text-sm text-muted-foreground">
-                Showing {surveys.pagination.offset + 1} to{" "}
-                {Math.min(surveys.pagination.offset + surveys.pagination.limit, surveys.pagination.total)} of{" "}
-                {surveys.pagination.total} surveys
+                Showing {(surveys as any).pagination.offset + 1} to{" "}
+                {Math.min((surveys as any).pagination.offset + (surveys as any).pagination.limit, (surveys as any).pagination.total)} of{" "}
+                {(surveys as any).pagination.total} surveys
               </div>
               <div className="flex space-x-2">
-                <Button variant="outline" size="sm" disabled={surveys.pagination.offset === 0}>
+                <Button variant="outline" size="sm" disabled={(surveys as any).pagination.offset === 0}>
                   Previous
                 </Button>
-                <Button variant="outline" size="sm" disabled={!surveys.pagination.hasMore}>
+                <Button variant="outline" size="sm" disabled={!(surveys as any).pagination.hasMore}>
                   Next
                 </Button>
               </div>

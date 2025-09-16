@@ -40,7 +40,7 @@ const upload = multer({
 });
 
 // File upload endpoint
-router.post("/upload", authenticate, upload.single("file"), asyncHandler(async (req: AuthenticatedRequest, res) => {
+router.post("/upload", authenticate, upload.single("file") as any, asyncHandler(async (req: AuthenticatedRequest, res) => {
   if (!req.file) {
     throw new AppError("No file provided", 400);
   }

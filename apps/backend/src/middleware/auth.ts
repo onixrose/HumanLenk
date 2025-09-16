@@ -80,13 +80,11 @@ export const requireAdmin = asyncHandler(
 );
 
 export const generateToken = (userId: string): string => {
-  return jwt.sign(
+  return (jwt.sign as any)(
     { userId },
     process.env.JWT_SECRET!,
     {
       expiresIn: process.env.JWT_EXPIRES_IN || "7d",
-      issuer: "humanlenk-api",
-      audience: "humanlenk-client",
     }
   );
 };

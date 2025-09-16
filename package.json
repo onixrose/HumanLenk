@@ -27,6 +27,8 @@
   },
   "devDependencies": {
     "@turbo/gen": "^1.10.12",
+    "@types/minimatch": "^6.0.0",
+    "@types/node": "^24.5.0",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
     "eslint": "^8.48.0",

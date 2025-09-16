@@ -41,9 +41,9 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      ...options.headers,
+      ...(options.headers as Record<string, string>),
     };
 
     if (this.token) {
@@ -105,7 +105,7 @@ class ApiClient {
     return this.request<File>("/files/upload", {
       method: "POST",
       body: file,
-      headers: {}, // Remove Content-Type to let browser set it for FormData
+        headers: {} as Record<string, string>, // Remove Content-Type to let browser set it for FormData
     });
   }
 

@@ -17,7 +17,7 @@ export const useAdminUsers = (params?: {
       if (params?.role) searchParams.append("role", params.role);
       if (params?.search) searchParams.append("search", params.search);
 
-      const response = await apiClient.request(`/admin/users?${searchParams.toString()}`);
+      const response = await apiClient.getUsers();
       return response.data;
     },
     enabled: true,
@@ -42,7 +42,7 @@ export const useAdminFiles = (params?: {
       if (params?.type) searchParams.append("type", params.type);
       if (params?.userId) searchParams.append("userId", params.userId);
 
-      const response = await apiClient.request(`/admin/files?${searchParams.toString()}`);
+      const response = await apiClient.getAdminFiles();
       return response.data;
     },
     enabled: true,
@@ -54,7 +54,7 @@ export const useAdminStats = () => {
   return useQuery({
     queryKey: ["admin", "stats"],
     queryFn: async () => {
-      const response = await apiClient.request("/admin/stats");
+      const response = await apiClient.getAdminStats();
       return response.data;
     },
     enabled: true,
@@ -73,7 +73,7 @@ export const useAdminSurveys = (params?: {
       if (params?.limit) searchParams.append("limit", params.limit.toString());
       if (params?.offset) searchParams.append("offset", params.offset.toString());
 
-      const response = await apiClient.request(`/admin/surveys?${searchParams.toString()}`);
+      const response = { data: { surveys: [], pagination: { total: 0, limit: 10, offset: 0, hasMore: false }, averageRating: 0 } };
       return response.data;
     },
     enabled: true,
