@@ -64,8 +64,8 @@ export interface ChatRequest {
 }
 
 export interface ChatResponse {
-  message: string;
-  timestamp: Date;
+  userMessage: Message;
+  assistantMessage: Message;
 }
 
 // Admin types

@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Send, Bot, User, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useChat } from "@humanlenk/api-client";
 
 interface Message {
   id: string;
@@ -60,7 +61,7 @@ export function ChatInterface() {
           id: response.data.assistantMessage.id,
           content: response.data.assistantMessage.content,
           role: "assistant",
-          timestamp: new Date(response.data.assistantMessage.createdAt),
+          timestamp: new Date(),
         };
         setMessages((prev) => [...prev, assistantMessage]);
       }
@@ -121,7 +122,7 @@ export function ChatInterface() {
           </div>
         ))}
         
-        {isLoading && (
+        {chatMutation.isPending && (
           <div className="flex gap-3 max-w-3xl">
             <Avatar className="h-8 w-8 shrink-0">
               <AvatarFallback>
