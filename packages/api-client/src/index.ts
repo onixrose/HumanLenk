@@ -196,7 +196,11 @@ export const useChat = () => {
   return useMutation({
     mutationFn: (data: ChatRequest) => apiClient.sendMessage(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["messages"] });
+      try {
+        queryClient.invalidateQueries({ queryKey: ["messages"] });
+      } catch (error) {
+        console.warn("Failed to invalidate queries:", error);
+      }
     },
   });
 };

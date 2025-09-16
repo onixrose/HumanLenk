@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Send, Bot, User, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useChat } from "@humanlenk/api-client";
+// import { useChat } from "@humanlenk/api-client";
 
 interface Message {
   id: string;
@@ -26,8 +26,8 @@ export function ChatInterface() {
     },
   ]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatMutation = useChat();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -38,7 +38,7 @@ export function ChatInterface() {
   }, [messages]);
 
   const handleSend = async () => {
-    if (!input.trim() || chatMutation.isPending) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -50,20 +50,31 @@ export function ChatInterface() {
     setMessages((prev) => [...prev, userMessage]);
     const messageContent = input;
     setInput("");
+    setIsLoading(true);
 
     try {
-      const response = await chatMutation.mutateAsync({
-        message: messageContent,
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: messageContent,
+        }),
       });
 
-      if (response.success && response.data) {
+      const data = await response.json();
+
+      if (data.success && data.data) {
         const assistantMessage: Message = {
-          id: response.data.assistantMessage.id,
-          content: response.data.assistantMessage.content,
+          id: data.data.assistantMessage.id,
+          content: data.data.assistantMessage.content,
           role: "assistant",
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, assistantMessage]);
+      } else {
+        throw new Error(data.error || "Failed to get response");
       }
     } catch (error) {
       const errorMessage: Message = {
@@ -74,6 +85,8 @@ export function ChatInterface() {
       };
       setMessages((prev) => [...prev, errorMessage]);
       console.error("Chat error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -122,7 +135,7 @@ export function ChatInterface() {
           </div>
         ))}
         
-        {chatMutation.isPending && (
+        {isLoading && (
           <div className="flex gap-3 max-w-3xl">
             <Avatar className="h-8 w-8 shrink-0">
               <AvatarFallback>
@@ -149,12 +162,12 @@ export function ChatInterface() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            disabled={chatMutation.isPending}
+            disabled={isLoading}
             className="flex-1"
           />
           <Button 
             onClick={handleSend} 
-            disabled={!input.trim() || chatMutation.isPending}
+            disabled={!input.trim() || isLoading}
             size="icon"
           >
             <Send className="h-4 w-4" />
