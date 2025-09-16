@@ -25,8 +25,8 @@ export function ChatInterface() {
     },
   ]);
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatMutation = useChat();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -37,7 +37,7 @@ export function ChatInterface() {
   }, [messages]);
 
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || chatMutation.isPending) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -47,20 +47,33 @@ export function ChatInterface() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const messageContent = input;
     setInput("");
-    setIsLoading(true);
 
-    // Simulate API call - replace with actual API call later
-    setTimeout(() => {
-      const assistantMessage: Message = {
+    try {
+      const response = await chatMutation.mutateAsync({
+        message: messageContent,
+      });
+
+      if (response.success && response.data) {
+        const assistantMessage: Message = {
+          id: response.data.assistantMessage.id,
+          content: response.data.assistantMessage.content,
+          role: "assistant",
+          timestamp: new Date(response.data.assistantMessage.createdAt),
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+      }
+    } catch (error) {
+      const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `I received your message: "${userMessage.content}". This is a placeholder response. The actual GPT integration will be implemented in the backend.`,
+        content: "Sorry, I'm having trouble connecting right now. Please try again.",
         role: "assistant",
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, assistantMessage]);
-      setIsLoading(false);
-    }, 1000);
+      setMessages((prev) => [...prev, errorMessage]);
+      console.error("Chat error:", error);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -135,12 +148,12 @@ export function ChatInterface() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            disabled={isLoading}
+            disabled={chatMutation.isPending}
             className="flex-1"
           />
           <Button 
             onClick={handleSend} 
-            disabled={!input.trim() || isLoading}
+            disabled={!input.trim() || chatMutation.isPending}
             size="icon"
           >
             <Send className="h-4 w-4" />
