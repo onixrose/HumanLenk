@@ -22,8 +22,8 @@ export function Header({ isAuthenticated, userRole, onAuthClick, onLogout }: Hea
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-3">
             {/* Modern H Logo */}
-            <div className="relative h-10 w-10 flex items-center justify-center">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-md"></div>
+            <div className="relative h-10 w-10 flex items-center justify-center group cursor-pointer">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-md transition-all duration-200 group-hover:shadow-lg group-hover:scale-105"></div>
               <div className="relative flex items-center justify-center">
                 <svg
                   width="24"

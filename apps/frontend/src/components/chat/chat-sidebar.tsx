@@ -195,7 +195,7 @@ export function ChatSidebar({
               key={chat.id}
               onClick={() => handleChatSelect(chat.id)}
               className={cn(
-                "group relative cursor-pointer transition-colors",
+                "group relative cursor-pointer transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]",
                 (isCollapsed && !isMobile)
                   ? "flex items-center justify-center rounded-lg my-0.5 h-10 w-12 hover:bg-accent/70"
                   : "flex items-start gap-3 rounded-lg p-3 hover:bg-accent/50",

@@ -95,3 +95,5 @@
 {"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":33,"responseLength":105,"service":"humanlenk-api","timestamp":"2025-09-16 22:50:57","userId":"cmfn1z7ye0005ac81s5uvss72"}
 {"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":38,"responseLength":213,"service":"humanlenk-api","timestamp":"2025-09-16 22:51:00","userId":"cmfn1z7ye0005ac81s5uvss72"}
 {"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":2,"responseLength":34,"service":"humanlenk-api","timestamp":"2025-09-16 22:51:30","userId":"cmfn1z7ye0005ac81s5uvss72"}
+{"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":29,"responseLength":25,"service":"humanlenk-api","timestamp":"2025-09-16 22:54:15","userId":"cmfn1z7ye0005ac81s5uvss72"}
+{"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":38,"responseLength":136,"service":"humanlenk-api","timestamp":"2025-09-16 22:54:23","userId":"cmfn1z7ye0005ac81s5uvss72"}

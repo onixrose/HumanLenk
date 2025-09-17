@@ -132,7 +132,7 @@
 
 /* Message bubbles - flat design */
 .message-bubble {
-  @apply shadow-none border-0 rounded-lg;
+  @apply shadow-none border-0 rounded-lg transition-all duration-200 hover:shadow-sm;
 }
 
 .message-bubble.user {
@@ -141,4 +141,95 @@
 
 .message-bubble.assistant {
   @apply bg-muted text-muted-foreground;
+}
+
+/* Professional animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes typing-dots {
+  0%, 20% {
+    color: rgb(var(--muted-foreground));
+  }
+  40% {
+    color: rgb(var(--foreground));
+  }
+  60%, 100% {
+    color: rgb(var(--muted-foreground));
+  }
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.3s ease-out;
+}
+
+.animate-fade-in-scale {
+  animation: fadeInScale 0.2s ease-out;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.animate-typing-dots {
+  animation: typing-dots 1.4s ease-in-out infinite;
+}
+
+/* Enhanced loading states */
+.loading-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+.smooth-transition {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+/* Enhanced button hover states */
+.flat-button {
+  @apply shadow-none border-0 rounded-md transition-all duration-200 hover:scale-105 active:scale-95;
+}
+
+/* Enhanced input focus states */
+.flat-input {
+  @apply shadow-none border border-border/50 rounded-md bg-input/50 transition-all duration-200 focus:border-primary/50 focus:ring-2 focus:ring-primary/20;
 }

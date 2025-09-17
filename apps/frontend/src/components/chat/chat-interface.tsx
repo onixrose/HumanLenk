@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 // import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Send, Bot, User, Loader2, Mic, Paperclip, MicOff, FileText, Lightbulb, List } from "lucide-react";
+import { Send, Bot, User, Mic, Paperclip, MicOff, FileText, Lightbulb, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 // import { useChat } from "@humanlenk/api-client";
 
@@ -159,13 +159,14 @@ export function ChatInterface({ token }: ChatInterfaceProps) {
     <div className="flex h-full flex-col">
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 pt-6 space-y-4">
-        {messages.map((message) => (
+        {messages.map((message, index) => (
           <div
             key={message.id}
             className={cn(
-              "flex gap-3 max-w-3xl",
+              "flex gap-3 max-w-3xl animate-slide-in-up",
               message.role === "user" ? "ml-auto flex-row-reverse" : ""
             )}
+            style={{ animationDelay: `${index * 50}ms` }}
           >
             <Avatar className="h-8 w-8 shrink-0">
               <AvatarFallback>
@@ -194,16 +195,20 @@ export function ChatInterface({ token }: ChatInterfaceProps) {
         ))}
         
         {isLoading && (
-          <div className="flex gap-3 max-w-3xl">
-            <Avatar className="h-8 w-8 shrink-0">
+          <div className="flex gap-3 max-w-3xl animate-fade-in-scale">
+            <Avatar className="h-8 w-8 shrink-0 animate-pulse-soft">
               <AvatarFallback>
                 <Bot className="h-4 w-4" />
               </AvatarFallback>
             </Avatar>
             <div className="p-3 message-bubble assistant">
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm">Thinking...</span>
+              <div className="flex items-center gap-3">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 bg-current rounded-full animate-typing-dots" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-current rounded-full animate-typing-dots" style={{ animationDelay: '200ms' }}></div>
+                  <div className="w-2 h-2 bg-current rounded-full animate-typing-dots" style={{ animationDelay: '400ms' }}></div>
+                </div>
+                <span className="text-sm animate-pulse-soft">AI is thinking...</span>
               </div>
             </div>
           </div>
@@ -214,7 +219,7 @@ export function ChatInterface({ token }: ChatInterfaceProps) {
 
       {/* Suggested Actions */}
       {showSuggestedActions && (
-        <div className="border-t border-border/30 px-4 py-3 bg-muted/20">
+        <div className="border-t border-border/30 px-4 py-3 bg-muted/20 animate-slide-in-up">
           <div className="max-w-3xl mx-auto">
             <div className="flex items-center gap-2 mb-2">
               <Lightbulb className="h-4 w-4 text-muted-foreground" />
