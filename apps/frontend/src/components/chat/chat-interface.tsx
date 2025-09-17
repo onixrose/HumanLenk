@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 // import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Send, Bot, User, Loader2 } from "lucide-react";
+import { Send, Bot, User, Loader2, Mic, Paperclip, MicOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 // import { useChat } from "@humanlenk/api-client";
 
@@ -31,7 +31,10 @@ export function ChatInterface({ token }: ChatInterfaceProps) {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -107,6 +110,40 @@ export function ChatInterface({ token }: ChatInterfaceProps) {
     }
   };
 
+  const handleVoiceToggle = () => {
+    if (isRecording) {
+      // Stop recording
+      setIsRecording(false);
+      // TODO: Implement actual voice recording stop and transcription
+      console.log("Voice recording stopped");
+    } else {
+      // Start recording
+      setIsRecording(true);
+      // TODO: Implement actual voice recording start
+      console.log("Voice recording started");
+    }
+  };
+
+  const handleFileSelect = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      // TODO: Implement file upload
+      console.log("File selected:", file.name);
+    }
+  };
+
+  const removeSelectedFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   return (
     <div className="flex h-full flex-col">
       {/* Messages */}
@@ -166,23 +203,99 @@ export function ChatInterface({ token }: ChatInterfaceProps) {
 
       {/* Input */}
       <div className="border-t border-border/30 p-4 bg-background">
-        <div className="flex gap-2 max-w-3xl mx-auto">
-          <Input
-            placeholder="Type your message..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            disabled={isLoading}
-            className="flex-1 flat-input"
-          />
-          <Button 
-            onClick={handleSend} 
-            disabled={!input.trim() || isLoading}
-            size="icon"
-            className="flat-button"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
+        <div className="max-w-3xl mx-auto space-y-3">
+          {/* File Preview */}
+          {selectedFile && (
+            <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border border-border/50">
+              <Paperclip className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm flex-1 truncate">{selectedFile.name}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={removeSelectedFile}
+                className="h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
+              >
+                ×
+              </Button>
+            </div>
+          )}
+
+          {/* Input Row */}
+          <div className="flex gap-2 items-end">
+            {/* File Input (Hidden) */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              onChange={handleFileChange}
+              className="hidden"
+              accept="image/*,.pdf,.doc,.docx,.txt,.md"
+            />
+            
+            {/* File Attachment Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleFileSelect}
+              disabled={isLoading}
+              className="flat-button shrink-0"
+              title="Attach file"
+            >
+              <Paperclip className="h-4 w-4" />
+            </Button>
+
+            {/* Text Input */}
+            <div className="flex-1 relative">
+              <Input
+                placeholder={isRecording ? "Recording..." : "Type your message..."}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={isLoading || isRecording}
+                className={cn(
+                  "flat-input pr-12",
+                  isRecording && "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-800"
+                )}
+              />
+              
+              {/* Voice Recording Button - Inside Input */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleVoiceToggle}
+                disabled={isLoading}
+                className={cn(
+                  "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 flat-button",
+                  isRecording && "text-red-500 hover:text-red-600"
+                )}
+                title={isRecording ? "Stop recording" : "Voice input"}
+              >
+                {isRecording ? (
+                  <MicOff className="h-4 w-4 animate-pulse" />
+                ) : (
+                  <Mic className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+
+            {/* Send Button */}
+            <Button 
+              onClick={handleSend} 
+              disabled={(!input.trim() && !selectedFile) || isLoading}
+              size="icon"
+              className="flat-button shrink-0"
+              title="Send message"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Recording Indicator */}
+          {isRecording && (
+            <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+              <span>Recording... Click mic to stop</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
