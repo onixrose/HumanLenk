@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 // import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Send, Bot, User, Loader2, Mic, Paperclip, MicOff } from "lucide-react";
+import { Send, Bot, User, Loader2, Mic, Paperclip, MicOff, FileText, Lightbulb, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 // import { useChat } from "@humanlenk/api-client";
 
@@ -144,6 +144,17 @@ export function ChatInterface({ token }: ChatInterfaceProps) {
     }
   };
 
+  const handleSuggestedAction = (action: string) => {
+    setInput(action);
+    // Auto-send the suggested action
+    setTimeout(() => {
+      handleSend();
+    }, 100);
+  };
+
+  // Show suggested actions when there are multiple messages
+  const showSuggestedActions = messages.length >= 3 && !isLoading;
+
   return (
     <div className="flex h-full flex-col">
       {/* Messages */}
@@ -200,6 +211,56 @@ export function ChatInterface({ token }: ChatInterfaceProps) {
         
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Suggested Actions */}
+      {showSuggestedActions && (
+        <div className="border-t border-border/30 px-4 py-3 bg-muted/20">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-center gap-2 mb-2">
+              <Lightbulb className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">Suggested Actions</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleSuggestedAction("Summarize our conversation so far")}
+                className="flat-button text-xs h-8"
+              >
+                <FileText className="h-3 w-3 mr-1" />
+                Summarize
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleSuggestedAction("Extract key points from our discussion")}
+                className="flat-button text-xs h-8"
+              >
+                <List className="h-3 w-3 mr-1" />
+                Key Points
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleSuggestedAction("What are the next steps I should take?")}
+                className="flat-button text-xs h-8"
+              >
+                <Lightbulb className="h-3 w-3 mr-1" />
+                Next Steps
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleSuggestedAction("Explain this in simpler terms")}
+                className="flat-button text-xs h-8"
+              >
+                <Bot className="h-3 w-3 mr-1" />
+                Simplify
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Input */}
       <div className="border-t border-border/30 p-4 bg-background">

@@ -79,3 +79,19 @@
 {"level":"info","message":"🌍 Environment: development","service":"humanlenk-api","timestamp":"2025-09-16 22:37:07"}
 {"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":2,"responseLength":34,"service":"humanlenk-api","timestamp":"2025-09-16 22:37:48","userId":"cmfn1z7ye0005ac81s5uvss72"}
 {"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":10,"responseLength":118,"service":"humanlenk-api","timestamp":"2025-09-16 22:38:10","userId":"cmfn1z7ye0005ac81s5uvss72"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"humanlenk-api","timestamp":"2025-09-16 22:46:08"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"humanlenk-api","timestamp":"2025-09-16 22:46:08"}
+{"level":"info","message":"🚀 Server running on port 5000","service":"humanlenk-api","timestamp":"2025-09-16 22:46:20"}
+{"level":"info","message":"📊 Health check: http://localhost:5000/health","service":"humanlenk-api","timestamp":"2025-09-16 22:46:20"}
+{"level":"info","message":"🌍 Environment: development","service":"humanlenk-api","timestamp":"2025-09-16 22:46:20"}
+{"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":2,"responseLength":34,"service":"humanlenk-api","timestamp":"2025-09-16 22:46:56","userId":"cmfn1z7ye0005ac81s5uvss72"}
+{"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":33,"responseLength":144,"service":"humanlenk-api","timestamp":"2025-09-16 22:47:03","userId":"cmfn1z7ye0005ac81s5uvss72"}
+{"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":38,"responseLength":142,"service":"humanlenk-api","timestamp":"2025-09-16 22:47:08","userId":"cmfn1z7ye0005ac81s5uvss72"}
+{"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":38,"responseLength":154,"service":"humanlenk-api","timestamp":"2025-09-16 22:47:16","userId":"cmfn1z7ye0005ac81s5uvss72"}
+{"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":29,"responseLength":107,"service":"humanlenk-api","timestamp":"2025-09-16 22:47:21","userId":"cmfn1z7ye0005ac81s5uvss72"}
+{"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":3,"responseLength":34,"service":"humanlenk-api","timestamp":"2025-09-16 22:49:04","userId":"cmfn1z7ye0005ac81s5uvss72"}
+{"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":7,"responseLength":34,"service":"humanlenk-api","timestamp":"2025-09-16 22:49:49","userId":"cmfn1z7ye0005ac81s5uvss72"}
+{"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":9,"responseLength":118,"service":"humanlenk-api","timestamp":"2025-09-16 22:50:06","userId":"cmfn1z7ye0005ac81s5uvss72"}
+{"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":33,"responseLength":105,"service":"humanlenk-api","timestamp":"2025-09-16 22:50:57","userId":"cmfn1z7ye0005ac81s5uvss72"}
+{"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":38,"responseLength":213,"service":"humanlenk-api","timestamp":"2025-09-16 22:51:00","userId":"cmfn1z7ye0005ac81s5uvss72"}
+{"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":2,"responseLength":34,"service":"humanlenk-api","timestamp":"2025-09-16 22:51:30","userId":"cmfn1z7ye0005ac81s5uvss72"}
