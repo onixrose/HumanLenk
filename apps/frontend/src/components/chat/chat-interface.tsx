@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+// import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Send, Bot, User, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,11 @@ interface Message {
   timestamp: Date;
 }
 
-export function ChatInterface() {
+interface ChatInterfaceProps {
+  token?: string;
+}
+
+export function ChatInterface({ token }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -53,11 +57,17 @@ export function ChatInterface() {
     setIsLoading(true);
 
     try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify({
           message: messageContent,
         }),
@@ -100,7 +110,7 @@ export function ChatInterface() {
   return (
     <div className="flex h-full flex-col">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 pt-6 space-y-4">
         {messages.map((message) => (
           <div
             key={message.id}
@@ -119,19 +129,19 @@ export function ChatInterface() {
               </AvatarFallback>
             </Avatar>
             
-            <Card
+            <div
               className={cn(
-                "p-3 max-w-[80%]",
+                "p-3 max-w-[80%] message-bubble",
                 message.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted"
+                  ? "user"
+                  : "assistant"
               )}
             >
               <p className="text-sm whitespace-pre-wrap">{message.content}</p>
               <p className="text-xs opacity-70 mt-2">
                 {message.timestamp.toLocaleTimeString()}
               </p>
-            </Card>
+            </div>
           </div>
         ))}
         
@@ -142,12 +152,12 @@ export function ChatInterface() {
                 <Bot className="h-4 w-4" />
               </AvatarFallback>
             </Avatar>
-            <Card className="p-3 bg-muted">
+            <div className="p-3 message-bubble assistant">
               <div className="flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span className="text-sm">Thinking...</span>
               </div>
-            </Card>
+            </div>
           </div>
         )}
         
@@ -155,7 +165,7 @@ export function ChatInterface() {
       </div>
 
       {/* Input */}
-      <div className="border-t p-4">
+      <div className="border-t border-border/30 p-4 bg-background">
         <div className="flex gap-2 max-w-3xl mx-auto">
           <Input
             placeholder="Type your message..."
@@ -163,12 +173,13 @@ export function ChatInterface() {
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
             disabled={isLoading}
-            className="flex-1"
+            className="flex-1 flat-input"
           />
           <Button 
             onClick={handleSend} 
             disabled={!input.trim() || isLoading}
             size="icon"
+            className="flat-button"
           >
             <Send className="h-4 w-4" />
           </Button>

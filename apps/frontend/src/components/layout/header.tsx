@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 // import { Badge } from "@/components/ui/badge";
 import { LogOut, User, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -16,7 +17,7 @@ interface HeaderProps {
 export function Header({ isAuthenticated, userRole, onAuthClick, onLogout }: HeaderProps) {
   const router = useRouter();
   return (
-    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="flat-header">
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-2">
           <div className="flex items-center space-x-2">
@@ -28,6 +29,7 @@ export function Header({ isAuthenticated, userRole, onAuthClick, onLogout }: Hea
         </div>
 
         <div className="flex items-center space-x-4">
+          <ThemeToggle />
           {isAuthenticated ? (
             <div className="flex items-center space-x-2">
               <Avatar className="h-8 w-8">

@@ -11,12 +11,13 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 interface AuthModalProps {
   open: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (token: string, user: any) => void;
 }
 
 export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -33,23 +34,76 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
     
-    // Simulate API call - replace with actual API call later
-    setTimeout(() => {
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Login failed");
+      }
+
+      // Store JWT token in localStorage
+      localStorage.setItem("token", data.data.token);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
+
+      onSuccess(data.data.token, data.data.user);
+      // Close modal after a small delay to ensure state updates
+      setTimeout(() => onClose(), 100);
+    } catch (err: any) {
+      setError(err.message || "Login failed");
+    } finally {
       setIsLoading(false);
-      onSuccess();
-    }, 1000);
+    }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
     
-    // Simulate API call - replace with actual API call later
-    setTimeout(() => {
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Registration failed");
+      }
+
+      // Store JWT token in localStorage
+      localStorage.setItem("token", data.data.token);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
+
+      onSuccess(data.data.token, data.data.user);
+      // Close modal after a small delay to ensure state updates
+      setTimeout(() => onClose(), 100);
+    } catch (err: any) {
+      setError(err.message || "Registration failed");
+    } finally {
       setIsLoading(false);
-      onSuccess();
-    }, 1000);
+    }
   };
 
   return (
@@ -62,11 +116,16 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
           </TabsList>
           
           <TabsContent value="login">
-            <Card>
+            <Card className="flat-card">
               <CardHeader>
                 <CardTitle>Welcome back</CardTitle>
               </CardHeader>
               <CardContent>
+                {error && (
+                  <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                    {error}
+                  </div>
+                )}
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <label htmlFor="email" className="text-sm font-medium">
@@ -81,6 +140,7 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
                       onChange={handleInputChange}
                       required
                       disabled={isLoading}
+                      className="flat-input"
                     />
                   </div>
                   
@@ -137,6 +197,11 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
                 <CardTitle>Create an account</CardTitle>
               </CardHeader>
               <CardContent>
+                {error && (
+                  <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                    {error}
+                  </div>
+                )}
                 <form onSubmit={handleRegister} className="space-y-4">
                   <div className="space-y-2">
                     <label htmlFor="name" className="text-sm font-medium">

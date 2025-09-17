@@ -27,6 +27,19 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   
+  // Stability improvements
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+    // Disable problematic experimental features
+    webpackBuildWorker: false,
+  },
+  
+  // Better error handling
+  onDemandEntries: {
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 2,
+  },
+  
   // Bundle analysis and path aliases
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     // Add path alias
@@ -34,6 +47,33 @@ const nextConfig = {
       ...config.resolve.alias,
       '@': require('path').resolve(__dirname, 'src'),
     };
+    
+    // PERMANENT FIX: Prevent cache corruption in development
+    if (dev) {
+      // Disable problematic webpack features
+      config.cache = false;
+      config.watchOptions = {
+        ...config.watchOptions,
+        ignored: ['**/node_modules', '**/.git', '**/.next'],
+      };
+      
+      // Add fallbacks for problematic modules
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+      
+      // Prevent module resolution issues
+      config.optimization.splitChunks = {
+        ...config.optimization.splitChunks,
+        cacheGroups: {
+          default: false,
+          vendors: false,
+        },
+      };
+    }
     
     return config;
   },

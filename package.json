@@ -9,6 +9,10 @@
   ],
   "scripts": {
     "dev": "turbo run dev",
+    "dev:clean": "./scripts/dev-clean.sh",
+    "dev:fresh": "yarn clean:cache && yarn dev",
+    "clean:cache": "rm -rf apps/frontend/.next .turbo node_modules/.cache && find . -name '.cache' -type d -exec rm -rf {} + 2>/dev/null || true",
+    "clean:full": "yarn clean:cache && yarn install --frozen-lockfile",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",

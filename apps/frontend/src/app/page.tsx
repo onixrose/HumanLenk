@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChatInterface } from "@/components/chat/chat-interface";
+import { ChatSidebar } from "@/components/chat/chat-sidebar";
 import { AuthModal } from "@/components/auth/auth-modal";
 import { FileUploadSection } from "@/components/files/file-upload-section";
 import { Header } from "@/components/layout/header";
@@ -13,10 +14,60 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export default function HomePage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [_user, setUser] = useState<any>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [currentChatId, setCurrentChatId] = useState<string>("1");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  const handleAuthSuccess = () => {
+  // Check for existing auth on component mount
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+    if (storedToken && storedUser && storedUser !== "undefined") {
+      try {
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser));
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error("❌ Failed to parse stored user data:", error);
+        // Clear invalid data
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
+    }
+  }, []);
+
+  const handleAuthSuccess = (authToken: string, authUser: any) => {
+    setToken(authToken);
+    setUser(authUser);
     setIsAuthenticated(true);
     setShowAuthModal(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setToken(null);
+    setUser(null);
+    setIsAuthenticated(false);
+  };
+
+  const handleChatSelect = (chatId: string) => {
+    setCurrentChatId(chatId);
+  };
+
+  const handleNewChat = () => {
+    const newChatId = Date.now().toString();
+    setCurrentChatId(newChatId);
+  };
+
+  const handleDeleteChat = (chatId: string) => {
+    // TODO: Implement actual chat deletion logic
+    console.log("Deleting chat:", chatId);
+    // If deleting current chat, switch to a different one
+    if (chatId === currentChatId) {
+      setCurrentChatId("1"); // Switch to first chat or create new one
+    }
   };
 
   return (
@@ -24,7 +75,7 @@ export default function HomePage() {
       <Header 
         isAuthenticated={isAuthenticated}
         onAuthClick={() => setShowAuthModal(true)}
-        onLogout={() => setIsAuthenticated(false)}
+        onLogout={handleLogout}
       />
       
       <div className="flex-1 overflow-hidden">
@@ -37,8 +88,18 @@ export default function HomePage() {
               </TabsList>
             </div>
             
-            <TabsContent value="chat" className="flex-1 overflow-hidden">
-              <ChatInterface />
+              <TabsContent value="chat" className="flex-1 overflow-hidden flex">
+              <ChatSidebar
+                currentChatId={currentChatId}
+                onChatSelect={handleChatSelect}
+                onNewChat={handleNewChat}
+                onDeleteChat={handleDeleteChat}
+                isCollapsed={sidebarCollapsed}
+                onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+              />
+              <div className="flex-1 overflow-hidden">
+                <ChatInterface token={token || undefined} />
+              </div>
             </TabsContent>
             
             <TabsContent value="files" className="flex-1 overflow-hidden p-4">
