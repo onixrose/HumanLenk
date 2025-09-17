@@ -7,6 +7,8 @@ import { AuthModal } from "@/components/auth/auth-modal";
 import { FileUploadSection } from "@/components/files/file-upload-section";
 import { Header } from "@/components/layout/header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 // import { useAuth } from "@humanlenk/api-client";
 // import { useRouter } from "next/navigation";
 // import { useEffect } from "react";
@@ -18,6 +20,8 @@ export default function HomePage() {
   const [token, setToken] = useState<string | null>(null);
   const [currentChatId, setCurrentChatId] = useState<string>("1");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Check for existing auth on component mount
   useEffect(() => {
@@ -35,6 +39,24 @@ export default function HomePage() {
         localStorage.removeItem("user");
       }
     }
+  }, []);
+
+  // Mobile detection and responsive behavior
+  useEffect(() => {
+    const checkMobile = () => {
+      const isMobileView = window.innerWidth < 768; // md breakpoint
+      setIsMobile(isMobileView);
+      
+      // Auto-collapse sidebar on mobile
+      if (isMobileView) {
+        setSidebarCollapsed(true);
+        setMobileSidebarOpen(false);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const handleAuthSuccess = (authToken: string, authUser: any) => {
@@ -88,17 +110,69 @@ export default function HomePage() {
               </TabsList>
             </div>
             
-              <TabsContent value="chat" className="flex-1 overflow-hidden flex">
-              <ChatSidebar
-                currentChatId={currentChatId}
-                onChatSelect={handleChatSelect}
-                onNewChat={handleNewChat}
-                onDeleteChat={handleDeleteChat}
-                isCollapsed={sidebarCollapsed}
-                onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-              />
-              <div className="flex-1 overflow-hidden">
-                <ChatInterface token={token || undefined} />
+              <TabsContent value="chat" className="flex-1 overflow-hidden flex relative">
+              {/* Mobile Sidebar Overlay */}
+              {isMobile && mobileSidebarOpen && (
+                <div 
+                  className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                  onClick={() => setMobileSidebarOpen(false)}
+                />
+              )}
+              
+              {/* Sidebar */}
+              <div className={cn(
+                "transition-all duration-300 z-50",
+                isMobile 
+                  ? cn(
+                      "fixed left-0 top-16 bottom-0 bg-background border-r shadow-lg",
+                      mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+                    )
+                  : "relative"
+              )}>
+                <ChatSidebar
+                  currentChatId={currentChatId}
+                  onChatSelect={handleChatSelect}
+                  onNewChat={handleNewChat}
+                  onDeleteChat={handleDeleteChat}
+                  isCollapsed={isMobile ? false : sidebarCollapsed}
+                  onToggleCollapse={() => {
+                    if (isMobile) {
+                      setMobileSidebarOpen(!mobileSidebarOpen);
+                    } else {
+                      setSidebarCollapsed(!sidebarCollapsed);
+                    }
+                  }}
+                  isMobile={isMobile}
+                  _mobileSidebarOpen={mobileSidebarOpen}
+                  onMobileClose={() => setMobileSidebarOpen(false)}
+                />
+              </div>
+              
+              {/* Chat Interface */}
+              <div className="flex-1 overflow-hidden flex flex-col">
+                {/* Mobile Menu Button */}
+                {isMobile && (
+                  <div className="flex items-center justify-between p-3 border-b bg-background/95 backdrop-blur">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+                      className="md:hidden"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-muted-foreground">
+                        <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                      <span className="ml-2 text-sm">Chats</span>
+                    </Button>
+                    <div className="text-sm font-medium text-muted-foreground">
+                      HumanLenk AI
+                    </div>
+                  </div>
+                )}
+                
+                <div className="flex-1 overflow-hidden">
+                  <ChatInterface token={token || undefined} />
+                </div>
               </div>
             </TabsContent>
             

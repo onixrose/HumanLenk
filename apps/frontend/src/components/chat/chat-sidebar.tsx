@@ -29,15 +29,21 @@ interface ChatSidebarProps {
   onDeleteChat?: (chatId: string) => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  isMobile?: boolean;
+  _mobileSidebarOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export function ChatSidebar({ 
-  currentChatId, 
-  onChatSelect, 
+export function ChatSidebar({
+  currentChatId,
+  onChatSelect,
   onNewChat,
   onDeleteChat,
   isCollapsed = false,
-  onToggleCollapse 
+  onToggleCollapse,
+  isMobile = false,
+  _mobileSidebarOpen = false,
+  onMobileClose
 }: ChatSidebarProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [chatSessions] = useState<ChatSession[]>([
@@ -84,18 +90,28 @@ export function ChatSidebar({
     chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleChatSelect = (chatId: string) => {
+    onChatSelect(chatId);
+    // Auto-close mobile sidebar when selecting a chat
+    if (isMobile && onMobileClose) {
+      onMobileClose();
+    }
+  };
+
   return (
     <div className={cn(
       "flex h-full flex-col border-r border-border/30 bg-muted/30 transition-all duration-300",
-      isCollapsed ? "w-14" : "w-80"
+      isMobile 
+        ? "w-80" // Full width on mobile overlay
+        : isCollapsed ? "w-14" : "w-80"
     )}>
       {/* Header */}
       <div className={cn(
         "border-b border-border/30",
-        isCollapsed ? "p-2" : "p-4 space-y-3"
+        (isCollapsed && !isMobile) ? "p-2" : "p-4 space-y-3"
       )}>
-        {isCollapsed ? (
-          // Collapsed header - just toggle button
+        {(isCollapsed && !isMobile) ? (
+          // Collapsed header - just toggle button (desktop only)
           <div className="flex justify-center">
             {onToggleCollapse && (
               <Button
@@ -172,30 +188,30 @@ export function ChatSidebar({
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto">
         <div className={cn(
-          isCollapsed ? "py-2 px-1 space-y-1 flex flex-col items-center" : "p-2 space-y-1"
+          (isCollapsed && !isMobile) ? "py-2 px-1 space-y-1 flex flex-col items-center" : "p-2 space-y-1"
         )}>
           {filteredChats.map((chat) => (
             <div
               key={chat.id}
-              onClick={() => onChatSelect(chat.id)}
+              onClick={() => handleChatSelect(chat.id)}
               className={cn(
                 "group relative cursor-pointer transition-colors",
-                isCollapsed 
+                (isCollapsed && !isMobile)
                   ? "flex items-center justify-center rounded-lg my-0.5 h-10 w-12 hover:bg-accent/70"
                   : "flex items-start gap-3 rounded-lg p-3 hover:bg-accent/50",
                 currentChatId === chat.id 
                   ? "bg-accent text-accent-foreground" 
                   : "text-muted-foreground hover:text-foreground"
               )}
-              title={isCollapsed ? chat.title : undefined}
+              title={(isCollapsed && !isMobile) ? chat.title : undefined}
             >
               <MessageSquare className={cn(
                 "shrink-0",
-                isCollapsed ? "h-4 w-4" : "h-4 w-4 mt-0.5",
+                (isCollapsed && !isMobile) ? "h-4 w-4" : "h-4 w-4 mt-0.5",
                 currentChatId === chat.id ? "text-primary" : "text-muted-foreground"
               )} />
-              
-              {!isCollapsed && (
+
+              {!(isCollapsed && !isMobile) && (
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <h3 className="font-medium text-sm truncate">
@@ -247,7 +263,7 @@ export function ChatSidebar({
       </div>
 
       {/* Footer - Only show in expanded mode */}
-      {!isCollapsed && (
+      {!(isCollapsed && !isMobile) && (
         <div className="p-4 border-t border-border/30">
           <div className="text-xs text-muted-foreground text-center">
             HumanLenk AI Assistant

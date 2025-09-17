@@ -72,3 +72,10 @@
 {"level":"info","message":"📊 Health check: http://localhost:5000/health","service":"humanlenk-api","timestamp":"2025-09-16 22:27:07"}
 {"level":"info","message":"🌍 Environment: development","service":"humanlenk-api","timestamp":"2025-09-16 22:27:07"}
 {"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":2,"responseLength":34,"service":"humanlenk-api","timestamp":"2025-09-16 22:27:38","userId":"cmfn1z7ye0005ac81s5uvss72"}
+{"level":"info","message":"SIGTERM received, shutting down gracefully","service":"humanlenk-api","timestamp":"2025-09-16 22:37:02"}
+{"level":"info","message":"SIGTERM received, shutting down gracefully","service":"humanlenk-api","timestamp":"2025-09-16 22:37:02"}
+{"level":"info","message":"🚀 Server running on port 5000","service":"humanlenk-api","timestamp":"2025-09-16 22:37:07"}
+{"level":"info","message":"📊 Health check: http://localhost:5000/health","service":"humanlenk-api","timestamp":"2025-09-16 22:37:07"}
+{"level":"info","message":"🌍 Environment: development","service":"humanlenk-api","timestamp":"2025-09-16 22:37:07"}
+{"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":2,"responseLength":34,"service":"humanlenk-api","timestamp":"2025-09-16 22:37:48","userId":"cmfn1z7ye0005ac81s5uvss72"}
+{"fileId":null,"level":"info","message":"OpenAI API call successful","messageLength":10,"responseLength":118,"service":"humanlenk-api","timestamp":"2025-09-16 22:38:10","userId":"cmfn1z7ye0005ac81s5uvss72"}
