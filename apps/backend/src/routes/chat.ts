@@ -16,18 +16,108 @@ const openai = process.env.OPENAI_API_KEY
 // Validation schemas
 const chatMessageSchema = z.object({
   message: z.string().min(1, "Message cannot be empty").max(4000, "Message too long"),
+  chatSessionId: z.string(),
   fileId: z.string().optional(),
 });
 
+const createChatSessionSchema = z.object({
+  title: z.string().optional(),
+});
+
 const getMessagesSchema = z.object({
+  chatSessionId: z.string(),
   limit: z.string().optional().transform((val) => val ? parseInt(val) : 50),
   offset: z.string().optional().transform((val) => val ? parseInt(val) : 0),
 });
 
+// Create new chat session
+router.post("/sessions", authenticate, asyncHandler(async (req: AuthenticatedRequest, res) => {
+  const { title } = createChatSessionSchema.parse(req.body);
+  const userId = req.user!.id;
+
+  const chatSession = await prisma.chatSession.create({
+    data: {
+      title: title || "New Chat",
+      userId,
+    },
+  });
+
+  res.json({
+    success: true,
+    data: chatSession,
+  });
+}));
+
+// Get user's chat sessions
+router.get("/sessions", authenticate, asyncHandler(async (req: AuthenticatedRequest, res) => {
+  const userId = req.user!.id;
+
+  const chatSessions = await prisma.chatSession.findMany({
+    where: { userId },
+    orderBy: { updatedAt: "desc" },
+    include: {
+      messages: {
+        orderBy: { createdAt: "desc" },
+        take: 1, // Get last message for preview
+      },
+      _count: {
+        select: { messages: true },
+      },
+    },
+  });
+
+  // Format for frontend
+  const formattedSessions = chatSessions.map(session => ({
+    id: session.id,
+    title: session.title,
+    lastMessage: session.messages[0]?.content || "No messages yet",
+    timestamp: session.updatedAt,
+    messageCount: session._count.messages,
+  }));
+
+  res.json({
+    success: true,
+    data: formattedSessions,
+  });
+}));
+
+// Delete chat session
+router.delete("/sessions/:sessionId", authenticate, asyncHandler(async (req: AuthenticatedRequest, res) => {
+  const { sessionId } = req.params;
+  const userId = req.user!.id;
+
+  // Verify ownership
+  const session = await prisma.chatSession.findFirst({
+    where: { id: sessionId, userId },
+  });
+
+  if (!session) {
+    throw new AppError("Chat session not found", 404);
+  }
+
+  await prisma.chatSession.delete({
+    where: { id: sessionId },
+  });
+
+  res.json({
+    success: true,
+    message: "Chat session deleted successfully",
+  });
+}));
+
 // Send chat message
 router.post("/", authenticate, asyncHandler(async (req: AuthenticatedRequest, res) => {
-  const { message, fileId } = chatMessageSchema.parse(req.body);
+  const { message, chatSessionId, fileId } = chatMessageSchema.parse(req.body);
   const userId = req.user!.id;
+
+  // Verify chat session ownership
+  const chatSession = await prisma.chatSession.findFirst({
+    where: { id: chatSessionId, userId },
+  });
+
+  if (!chatSession) {
+    throw new AppError("Chat session not found", 404);
+  }
 
   // Validate file ownership if fileId is provided
   let file = null;
@@ -51,6 +141,7 @@ router.post("/", authenticate, asyncHandler(async (req: AuthenticatedRequest, re
       content: message,
       role: "USER",
       userId,
+      chatSessionId,
       fileId: fileId || null,
     },
   });
@@ -62,7 +153,7 @@ router.post("/", authenticate, asyncHandler(async (req: AuthenticatedRequest, re
     try {
       // Build conversation context
       const recentMessages = await prisma.message.findMany({
-        where: { userId },
+        where: { userId, chatSessionId },
         orderBy: { createdAt: "desc" },
         take: 10,
         include: {
@@ -137,8 +228,15 @@ router.post("/", authenticate, asyncHandler(async (req: AuthenticatedRequest, re
       content: aiResponse,
       role: "ASSISTANT",
       userId,
+      chatSessionId,
       fileId: fileId || null,
     },
+  });
+
+  // Update chat session timestamp
+  await prisma.chatSession.update({
+    where: { id: chatSessionId },
+    data: { updatedAt: new Date() },
   });
 
   res.json({
@@ -152,11 +250,20 @@ router.post("/", authenticate, asyncHandler(async (req: AuthenticatedRequest, re
 
 // Get chat messages
 router.get("/messages", authenticate, asyncHandler(async (req: AuthenticatedRequest, res) => {
-  const { limit, offset } = getMessagesSchema.parse(req.query);
+  const { chatSessionId, limit, offset } = getMessagesSchema.parse(req.query);
   const userId = req.user!.id;
 
+  // Verify chat session ownership
+  const chatSession = await prisma.chatSession.findFirst({
+    where: { id: chatSessionId, userId },
+  });
+
+  if (!chatSession) {
+    throw new AppError("Chat session not found", 404);
+  }
+
   const messages = await prisma.message.findMany({
-    where: { userId },
+    where: { userId, chatSessionId },
     orderBy: { createdAt: "desc" },
     take: limit,
     skip: offset,
@@ -175,7 +282,7 @@ router.get("/messages", authenticate, asyncHandler(async (req: AuthenticatedRequ
   messages.reverse();
 
   const total = await prisma.message.count({
-    where: { userId },
+    where: { userId, chatSessionId },
   });
 
   res.json({

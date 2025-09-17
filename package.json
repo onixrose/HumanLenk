@@ -27,7 +27,10 @@
     "db:studio": "cd apps/backend && yarn db:studio",
     "start:frontend": "cd apps/frontend && PORT=4000 yarn start",
     "start:backend": "cd apps/backend && PORT=5000 yarn start",
-    "dev-script": "./scripts/dev.sh"
+    "dev:frontend": "./scripts/dev-frontend.sh",
+    "dev:backend": "./scripts/dev-backend.sh",
+    "dev-script": "./scripts/dev.sh",
+    "dev:clean": "./scripts/dev-clean.sh"
   },
   "devDependencies": {
     "@turbo/gen": "^1.10.12",

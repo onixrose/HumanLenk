@@ -20,9 +20,10 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  files    File[]
-  messages Message[]
-  surveys  Survey[]
+  files        File[]
+  messages     Message[]
+  surveys      Survey[]
+  chatSessions ChatSession[]
 
   @@map("users")
 }
@@ -46,17 +47,33 @@ model File {
   @@map("files")
 }
 
-model Message {
-  id        String      @id @default(cuid())
-  content   String
-  role      String
+model ChatSession {
+  id        String   @id @default(cuid())
+  title     String   @default("New Chat")
   userId    String
-  fileId    String?
-  createdAt DateTime    @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  file File? @relation(fields: [fileId], references: [id], onDelete: SetNull)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@map("chat_sessions")
+}
+
+model Message {
+  id            String      @id @default(cuid())
+  content       String
+  role          String
+  userId        String
+  chatSessionId String
+  fileId        String?
+  createdAt     DateTime    @default(now())
+
+  // Relations
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatSession ChatSession @relation(fields: [chatSessionId], references: [id], onDelete: Cascade)
+  file        File?       @relation(fields: [fileId], references: [id], onDelete: SetNull)
 
   @@map("messages")
 }

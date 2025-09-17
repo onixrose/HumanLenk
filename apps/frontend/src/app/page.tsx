@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { ChatInterface } from "@/components/chat/chat-interface";
 import { ChatSidebar } from "@/components/chat/chat-sidebar";
 import { AuthModal } from "@/components/auth/auth-modal";
-import { FileUploadSection } from "@/components/files/file-upload-section";
+// import { FileUploadSection } from "@/components/files/file-upload-section"; // Removed - no tabs
 import { Header } from "@/components/layout/header";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Removed tabs
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 // import { useAuth } from "@humanlenk/api-client";
@@ -18,7 +18,7 @@ export default function HomePage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [_user, setUser] = useState<any>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [currentChatId, setCurrentChatId] = useState<string>("1");
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -79,8 +79,9 @@ export default function HomePage() {
   };
 
   const handleNewChat = () => {
-    const newChatId = Date.now().toString();
-    setCurrentChatId(newChatId);
+    // Reset to start a fresh chat session - let ChatInterface create a new session
+    setCurrentChatId(null);
+    console.log("New chat initiated - currentChatId reset to null");
   };
 
   const handleDeleteChat = (chatId: string) => {
@@ -102,15 +103,7 @@ export default function HomePage() {
       
       <div className="flex-1 overflow-hidden">
         {isAuthenticated ? (
-          <Tabs defaultValue="chat" className="h-full flex flex-col">
-            <div className="border-b px-4">
-              <TabsList className="grid w-full grid-cols-2 max-w-md">
-                <TabsTrigger value="chat">Chat</TabsTrigger>
-                <TabsTrigger value="files">Files</TabsTrigger>
-              </TabsList>
-            </div>
-            
-              <TabsContent value="chat" className="flex-1 overflow-hidden flex relative">
+          <div className="h-full flex relative">
               {/* Mobile Sidebar Overlay */}
               {isMobile && mobileSidebarOpen && (
                 <div 
@@ -164,31 +157,27 @@ export default function HomePage() {
                       </svg>
                       <span className="ml-2 text-sm">Chats</span>
                     </Button>
-                    <div className="text-sm font-medium text-muted-foreground">
-                      HumanLenk AI
-                    </div>
                   </div>
                 )}
                 
                 <div className="flex-1 overflow-hidden">
-                  <ChatInterface token={token || undefined} />
+                  <ChatInterface 
+                    token={token || undefined} 
+                    currentChatId={currentChatId} 
+                    onChatIdChange={setCurrentChatId}
+                  />
                 </div>
               </div>
-            </TabsContent>
-            
-            <TabsContent value="files" className="flex-1 overflow-hidden p-4">
-              <FileUploadSection />
-            </TabsContent>
-          </Tabs>
+            </div>
         ) : (
           <div className="flex items-center justify-center h-full">
             <div className="text-center space-y-6 p-8">
               <div className="space-y-2">
                 <h1 className="text-4xl font-bold tracking-tight">
-                  Welcome to HumanLenk
+                  🚀 Welcome to HumanLenk AI
                 </h1>
                 <p className="text-xl text-muted-foreground">
-                  AI-powered chat and intelligent file processing
+                  Your intelligent assistant for chat and file analysis. ⚡ Instant hot reload!
                 </p>
               </div>
               

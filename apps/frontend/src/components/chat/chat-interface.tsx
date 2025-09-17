@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 // import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Send, Bot, User, Mic, Paperclip, MicOff, FileText, Lightbulb, List } from "lucide-react";
+import { Send, Bot, User, Mic, Paperclip, MicOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 // import { useChat } from "@humanlenk/api-client";
 
@@ -18,9 +18,11 @@ interface Message {
 
 interface ChatInterfaceProps {
   token?: string;
+  currentChatId?: string | null;
+  onChatIdChange?: (chatId: string) => void;
 }
 
-export function ChatInterface({ token }: ChatInterfaceProps) {
+export function ChatInterface({ token, currentChatId, onChatIdChange }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -30,11 +32,55 @@ export function ChatInterface({ token }: ChatInterfaceProps) {
     },
   ]);
   const [input, setInput] = useState("");
+
+  // Reset messages when starting a new chat
+  useEffect(() => {
+    if (currentChatId === null) {
+      // Reset to welcome message for new chat
+      setMessages([
+        {
+          id: "welcome",
+          content: "Hello! I'm your AI assistant. How can I help you today?",
+          role: "assistant",
+          timestamp: new Date(),
+        },
+      ]);
+      console.log("Messages reset for new chat");
+    }
+  }, [currentChatId]);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-create chat session if none exists
+  const ensureChatSession = async (): Promise<string> => {
+    if (currentChatId) return currentChatId;
+
+    try {
+      const response = await fetch("/api/chat/sessions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ title: "New Chat" }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const newChatId = data.data.id;
+        console.log("Created new chat session:", newChatId);
+        if (onChatIdChange) onChatIdChange(newChatId);
+        return newChatId;
+      }
+    } catch (error) {
+      console.error("Failed to create chat session:", error);
+    }
+
+    return "default"; // Fallback
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -60,6 +106,8 @@ export function ChatInterface({ token }: ChatInterfaceProps) {
     setIsLoading(true);
 
     try {
+      const chatSessionId = await ensureChatSession();
+      
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       };
@@ -73,6 +121,7 @@ export function ChatInterface({ token }: ChatInterfaceProps) {
         headers,
         body: JSON.stringify({
           message: messageContent,
+          chatSessionId,
         }),
       });
 
@@ -144,16 +193,70 @@ export function ChatInterface({ token }: ChatInterfaceProps) {
     }
   };
 
-  const handleSuggestedAction = (action: string) => {
-    setInput(action);
-    // Auto-send the suggested action
-    setTimeout(() => {
-      handleSend();
-    }, 100);
+  const handleSuggestedAction = async (action: string) => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    
+    // Add user message immediately
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: action,
+      role: "user",
+      timestamp: new Date(),
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    
+    try {
+      const chatSessionId = await ensureChatSession();
+      
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ 
+          message: action,
+          chatSessionId
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.data.assistantMessage) {
+        const assistantMessage: Message = {
+          id: data.data.assistantMessage.id,
+          content: data.data.assistantMessage.content,
+          role: "assistant",
+          timestamp: new Date(),
+        };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+      }
+    } catch (error) {
+      console.error("Failed to get AI response:", error);
+      // Add error message
+      const errorMessage: Message = {
+        id: Date.now().toString() + "_error",
+        content: "Sorry, I couldn't process that request. Please try again.",
+        role: "assistant",
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Show suggested actions when there are multiple messages
-  const showSuggestedActions = messages.length >= 3 && !isLoading;
+  // Suggested actions are now under each AI message
 
   return (
     <div className="flex h-full flex-col">
@@ -178,18 +281,50 @@ export function ChatInterface({ token }: ChatInterfaceProps) {
               </AvatarFallback>
             </Avatar>
             
-            <div
-              className={cn(
-                "p-3 max-w-[80%] message-bubble",
-                message.role === "user"
-                  ? "user"
-                  : "assistant"
+            <div className="flex flex-col max-w-[80%]">
+              <div
+                className={cn(
+                  "p-3 message-bubble",
+                  message.role === "user"
+                    ? "user"
+                    : "assistant"
+                )}
+              >
+                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                <p className="text-xs opacity-70 mt-2">
+                  {message.timestamp.toLocaleTimeString()}
+                </p>
+              </div>
+              
+                     {/* Suggested Actions under AI messages - only for the last message */}
+                     {message.role === "assistant" && message.id !== "welcome" && index === messages.length - 1 && (
+                       <div className="mt-2 flex flex-wrap gap-1 animate-fade-in-scale">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSuggestedAction("Summarize this response")}
+                    className="text-xs h-7 px-2 hover:bg-accent/50"
+                  >
+                    📄 Summarize
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSuggestedAction("Explain this in simpler terms")}
+                    className="text-xs h-7 px-2 hover:bg-accent/50"
+                  >
+                    🤖 Simplify
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSuggestedAction("What are the key points here?")}
+                    className="text-xs h-7 px-2 hover:bg-accent/50"
+                  >
+                    📝 Key Points
+                  </Button>
+                </div>
               )}
-            >
-              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-              <p className="text-xs opacity-70 mt-2">
-                {message.timestamp.toLocaleTimeString()}
-              </p>
             </div>
           </div>
         ))}
@@ -201,14 +336,14 @@ export function ChatInterface({ token }: ChatInterfaceProps) {
                 <Bot className="h-4 w-4" />
               </AvatarFallback>
             </Avatar>
-            <div className="p-3 message-bubble assistant">
+            <div className="p-3 message-bubble assistant border border-blue-200/50 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
               <div className="flex items-center gap-3">
                 <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-current rounded-full animate-typing-dots" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-2 h-2 bg-current rounded-full animate-typing-dots" style={{ animationDelay: '200ms' }}></div>
-                  <div className="w-2 h-2 bg-current rounded-full animate-typing-dots" style={{ animationDelay: '400ms' }}></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-typing-dots" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-typing-dots" style={{ animationDelay: '200ms' }}></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-typing-dots" style={{ animationDelay: '400ms' }}></div>
                 </div>
-                <span className="text-sm animate-pulse-soft">AI is thinking...</span>
+                <span className="text-sm text-blue-600 dark:text-blue-400 font-medium animate-pulse-soft">AI is thinking...</span>
               </div>
             </div>
           </div>
@@ -217,55 +352,6 @@ export function ChatInterface({ token }: ChatInterfaceProps) {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Suggested Actions */}
-      {showSuggestedActions && (
-        <div className="border-t border-border/30 px-4 py-3 bg-muted/20 animate-slide-in-up">
-          <div className="max-w-3xl mx-auto">
-            <div className="flex items-center gap-2 mb-2">
-              <Lightbulb className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-muted-foreground">Suggested Actions</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleSuggestedAction("Summarize our conversation so far")}
-                className="flat-button text-xs h-8"
-              >
-                <FileText className="h-3 w-3 mr-1" />
-                Summarize
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleSuggestedAction("Extract key points from our discussion")}
-                className="flat-button text-xs h-8"
-              >
-                <List className="h-3 w-3 mr-1" />
-                Key Points
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleSuggestedAction("What are the next steps I should take?")}
-                className="flat-button text-xs h-8"
-              >
-                <Lightbulb className="h-3 w-3 mr-1" />
-                Next Steps
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleSuggestedAction("Explain this in simpler terms")}
-                className="flat-button text-xs h-8"
-              >
-                <Bot className="h-3 w-3 mr-1" />
-                Simplify
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Input */}
       <div className="border-t border-border/30 p-4 bg-background">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 // import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
@@ -46,42 +46,94 @@ export function ChatSidebar({
   onMobileClose
 }: ChatSidebarProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [chatSessions] = useState<ChatSession[]>([
-    {
-      id: "1",
-      title: "Getting Started",
-      lastMessage: "Hello! I'm your AI assistant. How can I help you today?",
-      timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
-      messageCount: 3
-    },
-    {
-      id: "2", 
-      title: "Project Discussion",
-      lastMessage: "Let me help you analyze that document...",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-      messageCount: 12
-    },
-    {
-      id: "3",
-      title: "Code Review",
-      lastMessage: "The implementation looks good overall...",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-      messageCount: 8
-    }
-  ]);
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
+  const [_isLoading, setIsLoading] = useState(true);
 
-  const formatTimestamp = (date: Date) => {
+  // Fetch real chat sessions from API
+  const fetchChatSessions = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await fetch("/api/chat/sessions", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setChatSessions(data.data || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch chat sessions:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Real new chat handler
+  const handleNewChatReal = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await fetch("/api/chat/sessions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ title: "New Chat" }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        await fetchChatSessions(); // Refresh list
+        handleChatSelect(data.data.id); // Select new chat
+        onNewChat(); // Call parent handler (this will clear currentChatId in parent)
+      }
+    } catch (error) {
+      console.error("Failed to create new chat:", error);
+    }
+  };
+
+  // Real delete chat handler
+  const handleDeleteChatReal = async (chatId: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await fetch(`/api/chat/sessions/${chatId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        await fetchChatSessions(); // Refresh list
+        if (onDeleteChat) onDeleteChat(chatId);
+      }
+    } catch (error) {
+      console.error("Failed to delete chat:", error);
+    }
+  };
+
+  // Fetch sessions on mount
+  useEffect(() => {
+    fetchChatSessions();
+  }, []);
+
+  const formatTimestamp = (date: Date | string) => {
     const now = new Date();
-    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    const diffInHours = (now.getTime() - dateObj.getTime()) / (1000 * 60 * 60);
     
     if (diffInHours < 1) {
-      return "Just now";
+      return `${Math.floor(diffInHours * 60)}m ago`;
     } else if (diffInHours < 24) {
       return `${Math.floor(diffInHours)}h ago`;
     } else if (diffInHours < 48) {
       return "Yesterday";
     } else {
-      return date.toLocaleDateString();
+      return dateObj.toLocaleDateString();
     }
   };
 
@@ -144,14 +196,14 @@ export function ChatSidebar({
             </div>
             
             {/* New Chat Button & Search - Only in expanded mode */}
-            <Button
-              onClick={onNewChat}
-              className="w-full flat-button justify-start"
-              variant="outline"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Chat
-            </Button>
+                   <Button
+                     onClick={handleNewChatReal}
+                     className="w-full flat-button justify-start"
+                     variant="outline"
+                   >
+                     <Plus className="h-4 w-4 mr-2" />
+                     New Chat
+                   </Button>
             
             {/* Search */}
             <div className="relative">
@@ -171,15 +223,15 @@ export function ChatSidebar({
         {isCollapsed && (
           <div className="px-1 pb-2">
             <div className="flex justify-center">
-              <Button
-                onClick={onNewChat}
-                variant="ghost"
-                size="sm"
-                className="w-12 h-9 p-0 flat-button hover:bg-accent rounded-lg"
-                title="New Chat"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
+                   <Button
+                     onClick={handleNewChatReal}
+                     variant="ghost"
+                     size="sm"
+                     className="w-12 h-9 p-0 flat-button hover:bg-accent rounded-lg"
+                     title="New Chat"
+                   >
+                     <Plus className="h-4 w-4" />
+                   </Button>
             </div>
           </div>
         )}
@@ -229,18 +281,18 @@ export function ChatSidebar({
                       {chat.messageCount} messages
                     </span>
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteChat?.(chat.id);
-                        }}
-                        title="Delete chat"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
+                             <Button
+                               variant="ghost"
+                               size="sm"
+                               className="h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 handleDeleteChatReal(chat.id);
+                               }}
+                               title="Delete chat"
+                             >
+                               <Trash2 className="h-3 w-3" />
+                             </Button>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -262,14 +314,6 @@ export function ChatSidebar({
         </div>
       </div>
 
-      {/* Footer - Only show in expanded mode */}
-      {!(isCollapsed && !isMobile) && (
-        <div className="p-4 border-t border-border/30">
-          <div className="text-xs text-muted-foreground text-center">
-            HumanLenk AI Assistant
-          </div>
-        </div>
-      )}
     </div>
   );
 }
