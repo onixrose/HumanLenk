@@ -19,12 +19,33 @@ export function Header({ isAuthenticated, userRole, onAuthClick, onLogout }: Hea
   return (
     <header className="flat-header">
       <div className="container flex h-16 items-center justify-between px-4">
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">HL</span>
+        <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3">
+            {/* Modern H Logo */}
+            <div className="relative h-10 w-10 flex items-center justify-center">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-md"></div>
+              <div className="relative flex items-center justify-center">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="text-white"
+                >
+                  <path
+                    d="M4 4v16M20 4v16M4 12h16"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
             </div>
-            <h1 className="text-xl font-semibold">HumanLenk</h1>
+            <div className="flex flex-col">
+              <h1 className="text-xl font-bold tracking-tight">HumanLenk</h1>
+              <p className="text-xs text-muted-foreground -mt-1">AI Assistant</p>
+            </div>
           </div>
         </div>
 

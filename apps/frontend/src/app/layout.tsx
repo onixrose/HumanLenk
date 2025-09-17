@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "HumanLenk - AI-Powered Chat & File Assistant",
   description: "Premium PWA with GPT-powered chat and intelligent file processing",
   manifest: "/manifest.json",
-  themeColor: "#000000",
+  themeColor: "#3b82f6",
   viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
   appleWebApp: {
     capable: true,
